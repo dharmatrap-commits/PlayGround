@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+  <meta name="theme-color" content="#171b16">
+  <meta name="description" content="Valley of Stone — a top-down open-world adventure. Play as an earth mage, defend a mountain valley, and face the Hollow Warden.">
+  <title>Valley of Stone — An Earth Mage's Tale</title>
+  <link rel="stylesheet" href="./src/styles.css">
+</head>
+<body>
+  <canvas id="game" aria-label="Valley of Stone game world"></canvas>
+
+  <!-- ============ HUD ============ -->
+  <div id="hud" class="hidden">
+    <div class="hud-left">
+      <div class="vitals panel">
+        <div class="portrait" aria-hidden="true">
+          <svg viewBox="0 0 64 64" role="presentation">
+            <defs>
+              <radialGradient id="pg" cx="50%" cy="40%" r="70%">
+                <stop offset="0" stop-color="#4f7f70"/>
+                <stop offset="1" stop-color="#1e3733"/>
+              </radialGradient>
+            </defs>
+            <circle cx="32" cy="32" r="31" fill="url(#pg)" stroke="#c9a45c" stroke-width="2"/>
+            <path d="M32 10c-11 0-18 8-18 20v7l5-3 3 5 4-5 4 4 4-4 4 4 4-4 4 4 4-4 3 4 4-4 2 4V30c0-12-8-20-20-20z" fill="#27443d"/>
+            <circle cx="32" cy="34" r="11" fill="#d8b48e"/>
+            <path d="M20 34c0-9 5-13 12-13s12 4 12 13c-3-4-6-5-12-5s-9 1-12 5z" fill="#1b2f2b"/>
+            <circle cx="27" cy="34" r="1.7" fill="#24312d"/>
+            <circle cx="37" cy="34" r="1.7" fill="#24312d"/>
+            <path d="M27 41c3 2 7 2 10 0" stroke="#8c5f47" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+            <path d="M32 22v-6M28 20l-2-4M36 20l2-4" stroke="#c9a45c" stroke-width="1.4" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="bars">
+          <div class="bar-row">
+            <span class="bar-icon" aria-hidden="true">♥</span>
+            <div class="bar health"><div class="fill" id="hp-fill"></div><span class="bar-text" id="hp-text">100 / 100</span></div>
+          </div>
+          <div class="bar-row">
+            <span class="bar-icon mana" aria-hidden="true">✦</span>
+            <div class="bar mana"><div class="fill" id="mp-fill"></div><span class="bar-text" id="mp-text">100 / 100</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="quest panel" id="quest-panel">
+        <div class="quest-kicker">CURRENT TASK</div>
+        <div class="quest-title" id="quest-title">A Valley Unsettled</div>
+        <div class="quest-objective" id="quest-objective">Speak with Elder Rowan by the village well.</div>
+      </div>
+    </div>
+
+    <div class="hud-right">
+      <div class="mini-wrap panel">
+        <div class="mini-head"><span>THE HOLLOW VALLEY</span><span id="compass">N</span></div>
+        <canvas id="minimap" width="200" height="150" aria-label="Minimap"></canvas>
+        <div class="essence-row">
+          <span class="essence-gem" aria-hidden="true"></span>
+          <span id="essence">0</span><span class="essence-label">earth essence</span>
+        </div>
+      </div>
+      <div class="sys-buttons">
+        <button id="btn-mute" class="icon-btn" type="button" aria-label="Mute sound" title="Mute (M)">
+          <span class="sound-on">♪</span>
+        </button>
+        <button id="btn-pause" class="icon-btn" type="button" aria-label="Pause game" title="Pause (Esc)">
+          <span>❚❚</span>
+        </button>
+      </div>
+    </div>
+
+    <div id="boss-bar" class="boss-bar hidden">
+      <div class="boss-name">THE HOLLOW WARDEN</div>
+      <div class="boss-track"><div class="boss-fill" id="boss-fill"></div></div>
+    </div>
+
+    <div id="interact" class="interact hidden"><span class="key">E</span><span id="interact-text">Talk</span></div>
+    <div id="toast" class="toast" role="status"></div>
+    <div id="area-label" class="area-label"><span id="area-name"></span></div>
+
+    <div class="controls-hint" id="controls-hint">
+      <span><b>WASD</b> move</span><span><b>Mouse</b> aim</span><span><b>Hold LMB</b> hurl stone</span>
+      <span><b>Space</b> stoneburst</span><span><b>E</b> interact</span>
+    </div>
+
+    <div class="touch-ui" id="touch-ui">
+      <div id="joy-zone" class="joy-zone" aria-hidden="true">
+        <div id="joy-base" class="joy-base"><div id="joy-knob" class="joy-knob"></div></div>
+      </div>
+      <div class="action-buttons">
+        <button id="btn-burst" class="round-btn burst" type="button" aria-label="Stoneburst">
+          <span class="rune">◈</span><small>BURST</small>
+        </button>
+        <button id="btn-throw" class="round-btn throw" type="button" aria-label="Throw rock">
+          <span class="rune">⬤</span><small>HURL</small>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ TITLE ============ -->
+  <div id="title-screen" class="overlay title-screen">
+    <div class="title-vignette"></div>
+    <div class="title-content">
+      <div class="eyebrow">AN OPEN-WORLD EARTH MAGIC TALE</div>
+      <h1>VALLEY<br><em>of</em> STONE</h1>
+      <p class="tagline">The mountain is waking. Its stones remember your hands.</p>
+      <button id="start-btn" class="primary" type="button">Start Game</button>
+      <div class="title-controls">
+        <div><b>WASD</b> walk the valley</div>
+        <div><b>Mouse</b> aim · <b>Hold LMB</b> hurl stones</div>
+        <div><b>Space</b> stoneburst · <b>E</b> interact · <b>Esc</b> pause</div>
+      </div>
+      <div class="title-foot">On phones: left thumb to walk, right thumb to aim, or use <b>HURL</b>.</div>
+    </div>
+    <div class="title-corner">A small valley · a small village · a very old hunger</div>
+  </div>
+
+  <!-- ============ DIALOGUE ============ -->
+  <div id="dialogue" class="dialogue panel hidden" aria-live="polite">
+    <div class="dlg-portrait" id="dlg-portrait">R</div>
+    <div class="dlg-body">
+      <div class="dlg-name" id="dlg-name">Elder Rowan</div>
+      <div class="dlg-text" id="dlg-text"></div>
+      <div class="dlg-hint">Press <b>E</b> or click to continue <span class="dlg-dots">· · ·</span></div>
+    </div>
+  </div>
+
+  <!-- ============ END SCREENS ============ -->
+  <div id="death-screen" class="overlay end-screen hidden">
+    <div class="end-inner">
+      <div class="end-kicker">THE VALLEY GROWS QUIET</div>
+      <h2>You Have Fallen</h2>
+      <p>The mountain still needs you. Rise at the village shrine.</p>
+      <button id="respawn-btn" class="primary" type="button">Rise Again</button>
+      <div class="end-note">Press <b>R</b></div>
+    </div>
+  </div>
+
+  <div id="victory-screen" class="overlay end-screen hidden">
+    <div class="end-inner victory">
+      <div class="end-kicker">THE HOLLOW WARDEN IS NO MORE</div>
+      <h2>The Valley Breathes</h2>
+      <p id="victory-text">The stones settle. Somewhere beneath the mountain, something old turns over and sleeps.</p>
+      <div class="victory-stats" id="victory-stats"></div>
+      <button id="again-btn" class="primary" type="button">Play Again</button>
+    </div>
+  </div>
+
+  <div id="pause-screen" class="overlay pause-screen hidden">
+    <div class="end-inner">
+      <div class="end-kicker">THE WORLD HOLDS ITS BREATH</div>
+      <h2>Paused</h2>
+      <div class="pause-controls">
+        <div><b>WASD / Arrows</b><span>Move</span></div>
+        <div><b>Mouse + LMB</b><span>Aim &amp; hurl stones</span></div>
+        <div><b>Space</b><span>Stoneburst</span></div>
+        <div><b>E</b><span>Talk / use shrine</span></div>
+        <div><b>M</b><span>Mute sound</span></div>
+        <div><b>Esc / P</b><span>Resume</span></div>
+      </div>
+      <button id="resume-btn" class="primary" type="button">Resume</button>
+    </div>
+  </div>
+
+  <div id="loading" class="overlay loading-screen">
+    <div class="load-inner">
+      <div class="load-rune">◈</div>
+      <div>Shaping the valley…</div>
+    </div>
+  </div>
+
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>
