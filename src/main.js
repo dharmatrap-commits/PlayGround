@@ -63,6 +63,7 @@ function boot() {
   });
 
   document.getElementById('dialogue')?.addEventListener('click', () => ui.advanceDialogue());
+  document.getElementById('interact')?.addEventListener('click', () => game.interact());
 
   document.addEventListener('pointerdown', () => audio.start(), { once: true });
 

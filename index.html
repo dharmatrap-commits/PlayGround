@@ -6,6 +6,7 @@
   <meta name="theme-color" content="#171b16">
   <meta name="description" content="Valley of Stone — a top-down open-world adventure. Play as an earth mage, defend a mountain valley, and face the Hollow Warden.">
   <title>Valley of Stone — An Earth Mage's Tale</title>
+  <link rel="icon" type="image/svg+xml" href="./favicon.svg">
   <link rel="stylesheet" href="./src/styles.css">
 </head>
 <body>
@@ -76,7 +77,7 @@
       <div class="boss-track"><div class="boss-fill" id="boss-fill"></div></div>
     </div>
 
-    <div id="interact" class="interact hidden"><span class="key">E</span><span id="interact-text">Talk</span></div>
+    <button id="interact" class="interact hidden" type="button" aria-label="Interact"><span class="key">E</span><span id="interact-text">Talk</span></button>
     <div id="toast" class="toast" role="status"></div>
     <div id="area-label" class="area-label"><span id="area-name"></span></div>
 
@@ -113,7 +114,7 @@
         <div><b>Mouse</b> aim · <b>Hold LMB</b> hurl stones</div>
         <div><b>Space</b> stoneburst · <b>E</b> interact · <b>Esc</b> pause</div>
       </div>
-      <div class="title-foot">On phones: left thumb to walk, right thumb to aim, or use <b>HURL</b>.</div>
+      <div class="title-foot">On phones: left thumb to walk, drag on the right to aim, use <b>HURL</b>/<b>BURST</b>, and tap the interaction prompt or dialogue.</div>
     </div>
     <div class="title-corner">A small valley · a small village · a very old hunger</div>
   </div>
